@@ -1,0 +1,55 @@
+name: Zendesk Ticket Classification
+
+on:
+  schedule:
+    - cron: "0 */2 * * *"
+  workflow_dispatch:
+    inputs:
+      brand:
+        description: Zendesk brand to process
+        type: choice
+        required: false
+        options:
+          - POWER.fi
+          - POWER.no
+          - POWER.se
+          - POWER.dk
+      ticketids:
+        description: Comma-separated Zendesk ticket ids
+        required: false
+        type: string
+
+jobs:
+  classify-tickets:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run ticket automation
+        env:
+          ZENDESK_SUBDOMAIN: ${{ secrets.ZENDESK_SUBDOMAIN }}
+          ZENDESK_EMAIL: ${{ secrets.ZENDESK_EMAIL }}
+          ZENDESK_API_TOKEN: ${{ secrets.ZENDESK_API_TOKEN }}
+          DIFY_API_KEY: ${{ secrets.DIFY_API_KEY }}
+          DIFY_BASE_URL: ${{ secrets.DIFY_BASE_URL }}
+          DIFY_USER: github-actions
+        run: |
+          args=()
+          if [ -n "${{ inputs.brand }}" ]; then
+            args+=(--brand "${{ inputs.brand }}")
+          fi
+          if [ -n "${{ inputs.ticketids }}" ]; then
+            args+=(--ticket-ids "${{ inputs.ticketids }}")
+          fi
+          python main.py "${args[@]}"
