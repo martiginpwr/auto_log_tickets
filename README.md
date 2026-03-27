@@ -39,6 +39,8 @@ Recommended values:
 - `ZENDESK_EMAIL=<your Zendesk admin email>`
 - `DIFY_BASE_URL=http://dify.power.no`
 
+`DIFY_BASE_URL` can be set either as `dify.power.no` or as a full URL such as `http://dify.power.no`. The script normalizes the scheme automatically.
+
 ## Manual workflow inputs
 
 - `brand`: one of `POWER.fi`, `POWER.no`, `POWER.se`, `POWER.dk`

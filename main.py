@@ -8,7 +8,7 @@ import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from html.parser import HTMLParser
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Iterable, List, Optional, Sequence
 
 import requests
 
@@ -173,6 +173,13 @@ def env_required(name: str) -> str:
     return value
 
 
+def normalize_base_url(raw: str, default_scheme: str = "http") -> str:
+    value = raw.strip()
+    if not re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*://", value):
+        value = f"{default_scheme}://{value}"
+    return value.rstrip("/")
+
+
 @dataclass
 class TicketField:
     id: int
@@ -315,7 +322,7 @@ class ZendeskClient:
 
 class DifyClient:
     def __init__(self, base_url: str, api_key: str, user: str) -> None:
-        self.base_url = base_url.rstrip("/")
+        self.base_url = normalize_base_url(base_url)
         self.api_key = api_key
         self.user = user
         self.session = requests.Session()
