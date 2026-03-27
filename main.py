@@ -214,7 +214,9 @@ class ZendeskClient:
         self.base_url = f"https://{subdomain}.zendesk.com/api/v2"
         self.session = requests.Session()
         self.session.auth = (f"{email}/token", api_token)
-        self.session.headers.update({"Content-Type": "application/json"})
+        self.session.headers.update(
+            {"Accept": "application/json", "Content-Type": "application/json"}
+        )
 
     def _request(self, method: str, url: str, **kwargs: Any) -> Dict[str, Any]:
         response = self.session.request(method, url, timeout=60, **kwargs)
@@ -280,9 +282,7 @@ class ZendeskClient:
         return payload["ticket"]
 
     def get_conversation_log(self, ticket_id: int) -> List[Dict[str, Any]]:
-        return self._paginate(
-            f"/tickets/{ticket_id}/conversation_log.json", "conversation_log"
-        )
+        return self._paginate(f"/tickets/{ticket_id}/conversation_log", "events")
 
     def get_side_conversations(self, ticket_id: int) -> List[Dict[str, Any]]:
         return self._paginate(
